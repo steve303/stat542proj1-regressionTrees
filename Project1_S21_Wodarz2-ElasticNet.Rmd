@@ -64,6 +64,7 @@ winsor.vars = c("Lot_Frontage", "Lot_Area", "Mas_Vnr_Area", "BsmtFin_SF_2", "Bsm
 remove.var <- c('Street', 'Utilities', 'Condition_2', 'Roof_Matl', 'Heating', 'Pool_QC', 'Misc_Feature', 'Low_Qual_Fin_SF', 'Pool_Area', 'Longitude','Latitude')
 
 na_replace = function(x){if(is.na(x)){return(0)} else{return(x)}}
+is_multi_level_factor = function(x){if(is.factor(x) && length(levels(x))>2){return(TRUE)} else{return(FALSE)}}
 
 ###########################################
 # Step 1: Preprocess training data
@@ -100,7 +101,7 @@ for(var in winsor.vars){
 }
 
 
-# Convert to matrix
+# Convert to train matrix
 X.train = as.matrix(train[, !names(train) %in% c('PID','Sale_Price')])
 Y.train = as.matrix(train[, names(train) %in% c('Sale_Price')])
 
@@ -148,10 +149,10 @@ for(var in winsor.vars){
   test[, var] = tmp
 }
 
-# Convert to matrix
+# Convert to test matrix
 X.test = as.matrix(test[,!names(test) %in% c('PID')])
 
-#test.y.pred = exp(predict(cv.out, s = best.lam, newx=X.test))
+# Predict
 test.y.pred = exp(predict(cv.out, s = best.lam, newx=X.test))
 test.y.pred = data.frame(PID = test[,1], Sale_Price = test.y.pred[,1])
 write.csv(test.y.pred, file = "mysubmission1.txt",  quote= FALSE, row.names = FALSE)
