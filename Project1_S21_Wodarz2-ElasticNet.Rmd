@@ -122,7 +122,7 @@ test <- read.csv("test.csv")
 # Remove vars
 test = test[, !names(test) %in% remove.var]
 
-# Character column to numeric
+# Character column to one hot encoding
 for(i in 1:ncol(test)){
   if(is.character(test[,i])){
     test[,i] = factor(test[,i], levels = levels(train_factors[,i]))
