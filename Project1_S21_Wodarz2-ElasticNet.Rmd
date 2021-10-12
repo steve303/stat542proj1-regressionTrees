@@ -27,7 +27,7 @@ Here is how you generate a split of training and test using the j-th column of `
 ```{r}
 data <- read.csv("Ames_data.csv")
 testIDs <- read.table("project1_testIDs.dat")
-j <- 2
+j <- 4
 train <- data[-testIDs[,j], ]
 test <- data[testIDs[,j], ]
 test.y <- test[, c(1, 83)]
@@ -56,6 +56,7 @@ test <- read.csv("test.csv")
 # 
 library(glmnet)
 library(caret)
+set.seed(1093)
 
 
 ### Used for both, pre-processing agnostic
@@ -65,6 +66,8 @@ remove.var <- c('Street', 'Utilities', 'Condition_2', 'Roof_Matl', 'Heating', 'P
 
 na_replace = function(x){if(is.na(x)){return(0)} else{return(x)}}
 is_multi_level_factor = function(x){if(is.factor(x) && length(levels(x))>2){return(TRUE)} else{return(FALSE)}}
+
+quan.value = 0.95
 
 ###########################################
 # Step 1: Preprocess training data
@@ -92,7 +95,6 @@ train = train[,!names(train) %in% names(train[sapply(train, is.factor)])]
 train[,which(names(train) == "Garage_Yr_Blt")] = sapply(train[,which(names(train) == "Garage_Yr_Blt")],na_replace)
 
 # Winsorize
-quan.value = 0.95
 for(var in winsor.vars){
   tmp = train[, var]
   myquan = quantile(tmp, probs = quan.value, na.rm = TRUE)
@@ -138,7 +140,7 @@ test = test[,!names(test) %in% names(test[sapply(test, is.factor)])]
 test[,which(names(test) == "Garage_Yr_Blt")] = sapply(test[,which(names(test) == "Garage_Yr_Blt")],na_replace)
 na_values_matrix = which(is.na(test), arr.ind=TRUE)
 for(i in 1:nrow(na_values_matrix)){
-  test[na_values_matrix[i,1],na_values_matrix[i,2]] = max(test[,na_values_matrix[i,2]], na.rm=TRUE) + 1
+  test[na_values_matrix[i,1],na_values_matrix[i,2]] = 0
 }
 
 # Winsorize
@@ -175,8 +177,12 @@ winsor.vars = c("Lot_Frontage", "Lot_Area", "Mas_Vnr_Area", "BsmtFin_SF_2", "Bsm
 remove.var <- c('Street', 'Utilities', 'Condition_2', 'Roof_Matl', 'Heating', 'Pool_QC', 'Misc_Feature', 'Low_Qual_Fin_SF', 'Pool_Area', 'Longitude','Latitude')
 
 na_replace = function(x){if(is.na(x)){return(0)} else{return(x)}}
+is_multi_level_factor = function(x){if(is.factor(x) && length(levels(x))>2){return(TRUE)} else{return(FALSE)}}
+
+quan.value = 0.95
 
 for(j in 1:10){
+  set.seed(1093)
   train <- data[-testIDs[,j], ]
   test <- data[testIDs[,j], ]
   test.y <- test[, c(1, 83)]
@@ -202,7 +208,6 @@ for(j in 1:10){
   train[,which(names(train) == "Garage_Yr_Blt")] = sapply(train[,which(names(train) == "Garage_Yr_Blt")],na_replace)
   
   # Winsorize
-  quan.value = 0.95
   for(var in winsor.vars){
     tmp = train[, var]
     myquan = quantile(tmp, probs = quan.value, na.rm = TRUE)
@@ -211,7 +216,7 @@ for(j in 1:10){
   }
   
   
-  # Convert to matrix
+  # Convert to train matrix
   X.train = as.matrix(train[, !names(train) %in% c('PID','Sale_Price')])
   Y.train = as.matrix(train[, names(train) %in% c('Sale_Price')])
   
@@ -226,6 +231,7 @@ for(j in 1:10){
   # Step 2: Preprocess test data
   #         and output predictions into two files
   #
+  test <- read.csv("test.csv")
   #
   # YOUR CODE
   # 
@@ -233,7 +239,7 @@ for(j in 1:10){
   # Remove vars
   test = test[, !names(test) %in% remove.var]
   
-  # Character column to numeric
+  # Character column to one hot encoding
   for(i in 1:ncol(test)){
     if(is.character(test[,i])){
       test[,i] = factor(test[,i], levels = levels(train_factors[,i]))
@@ -247,7 +253,7 @@ for(j in 1:10){
   test[,which(names(test) == "Garage_Yr_Blt")] = sapply(test[,which(names(test) == "Garage_Yr_Blt")],na_replace)
   na_values_matrix = which(is.na(test), arr.ind=TRUE)
   for(i in 1:nrow(na_values_matrix)){
-    test[na_values_matrix[i,1],na_values_matrix[i,2]] = max(test[,na_values_matrix[i,2]], na.rm=TRUE) + 1
+    test[na_values_matrix[i,1],na_values_matrix[i,2]] = 0
   }
   
   # Winsorize
@@ -258,10 +264,10 @@ for(j in 1:10){
     test[, var] = tmp
   }
   
-  # Convert to matrix
+  # Convert to test matrix
   X.test = as.matrix(test[,!names(test) %in% c('PID')])
   
-  #test.y.pred = exp(predict(cv.out, s = best.lam, newx=X.test))
+  # Predict
   test.y.pred = exp(predict(cv.out, s = best.lam, newx=X.test))
   test.y.pred = data.frame(PID = test[,1], Sale_Price = test.y.pred[,1])
   write.csv(test.y.pred, file = paste("mysubmission",j,".txt",sep=""),  quote= FALSE, row.names = FALSE)
