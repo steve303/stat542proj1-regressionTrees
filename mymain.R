@@ -1,0 +1,131 @@
+# Step 0: Load necessary libraries
+###########################################
+# Step 0: Load necessary libraries
+#
+# YOUR CODE
+# 
+library(glmnet)
+library(caret)
+library(gbm)
+set.seed(1093)
+
+# Vars used in preprocessing for both
+winsor.vars = c("Lot_Frontage", "Lot_Area", "Mas_Vnr_Area", "BsmtFin_SF_2", "Bsmt_Unf_SF", "Total_Bsmt_SF", "Second_Flr_SF", 'First_Flr_SF', "Gr_Liv_Area", "Garage_Area", "Wood_Deck_SF", "Open_Porch_SF", "Enclosed_Porch", "Three_season_porch", "Screen_Porch", "Misc_Val")
+remove.var = c('Street', 'Utilities', 'Condition_2', 'Roof_Matl', 'Heating', 'Pool_QC', 'Misc_Feature', 'Low_Qual_Fin_SF', 'Pool_Area', 'Longitude','Latitude')
+na_replace = function(x){if(is.na(x)){return(0)} else{return(x)}}
+quan.value = 0.95
+
+###########################################
+# Step 1: Preprocess training data
+#         and fit two models
+#
+train <- read.csv("train.csv")
+#
+# YOUR CODE
+# 
+
+# GBM
+gbm_train = train
+gbm_train[sapply(gbm_train, is.character)] = lapply(gbm_train[sapply(gbm_train, is.character)], as.factor)
+n = nrow(gbm_train)
+gbm_fit = gbm(log(Sale_Price) ~ ., data = gbm_train[,-which(names(gbm_train) == "PID" )],
+             distribution =  "gaussian",
+             n.trees = 500,
+             shrinkage = 0.1,
+             interaction.depth = 5,
+             bag.fraction = 1,
+             cv.folds = 5)
+
+# Elastic Net
+# Remove Vars
+en_train = train
+en_train = en_train[, !names(en_train) %in% remove.var]
+
+# Character column to one hot encoding
+en_train[sapply(en_train, is.character)] = lapply(en_train[sapply(en_train, is.character)], as.factor)
+train_factors = en_train
+dummy = dummyVars("~.", data = en_train[sapply(en_train, is.factor)])
+train_one_hot_encodings = data.frame(predict(dummy, newdata=en_train[sapply(en_train, is.factor)]))
+en_train = cbind(en_train, train_one_hot_encodings)
+en_train = en_train[,!names(en_train) %in% names(en_train[sapply(en_train, is.factor)])]
+
+
+# Replace NA
+en_train[,which(names(en_train) == "Garage_Yr_Blt")] = sapply(en_train[,which(names(en_train) == "Garage_Yr_Blt")],na_replace)
+
+# Winsorize
+for(var in winsor.vars){
+  tmp = en_train[, var]
+  myquan = quantile(tmp, probs = quan.value, na.rm = TRUE)
+  tmp[tmp > myquan] <- myquan
+  en_train[, var] = tmp
+}
+
+
+# Convert to train matrix
+X.train = as.matrix(en_train[, !names(en_train) %in% c('PID','Sale_Price')])
+Y.train = as.matrix(en_train[, names(en_train) %in% c('Sale_Price')])
+
+
+# Elastic Net Model
+cv.out = cv.glmnet(X.train, log(Y.train), alpha = 0.2)
+best.lam = cv.out$lambda.min
+
+###########################################
+# Step 2: Preprocess test data
+#         and output predictions into two files
+#
+test <- read.csv("test.csv")
+#
+# YOUR CODE
+# 
+
+# GBM
+gbm_test = test
+for(i in 1:ncol(gbm_test)){
+  if(is.character(gbm_test[,i])){
+    gbm_test[,i] = factor(gbm_test[,i], levels = levels(gbm_train[,i]))
+  }
+}
+
+gbm_test.y.pred = exp(predict(gbm_fit, newdata=gbm_test))
+gbm_test.y.pred = data.frame(PID = test[,1], Sale_Price = gbm_test.y.pred)
+write.csv(gbm_test.y.pred, file = "mysubmission2.txt",  quote= FALSE, row.names = FALSE)
+
+# Elastic Net
+# Remove vars
+en_test = test
+en_test = en_test[, !names(en_test) %in% remove.var]
+
+# Character column to one hot encoding
+for(i in 1:ncol(en_test)){
+  if(is.character(en_test[,i])){
+    en_test[,i] = factor(en_test[,i], levels = levels(train_factors[,i]))
+  }
+}
+test_one_hot_encodings = data.frame(predict(dummy, newdata=en_test[sapply(en_test, is.factor)]))
+en_test = cbind(en_test, test_one_hot_encodings)
+en_test = en_test[,!names(en_test) %in% names(en_test[sapply(en_test, is.factor)])]
+
+# Replace NA 
+en_test[,which(names(en_test) == "Garage_Yr_Blt")] = sapply(en_test[,which(names(en_test) == "Garage_Yr_Blt")],na_replace)
+na_values_matrix = which(is.na(en_test), arr.ind=TRUE)
+for(i in 1:nrow(na_values_matrix)){
+  en_test[na_values_matrix[i,1],na_values_matrix[i,2]] = 0
+}
+
+# Winsorize
+for(var in winsor.vars){
+  tmp = en_test[, var]
+  myquan = quantile(tmp, probs = quan.value, na.rm = TRUE)
+  tmp[tmp > myquan] <- myquan
+  en_test[, var] = tmp
+}
+
+# Convert to test matrix
+X.test = as.matrix(en_test[,!names(en_test) %in% c('PID')])
+
+# Predict
+en_test.y.pred = exp(predict(cv.out, s = best.lam, newx=X.test))
+en_test.y.pred = data.frame(PID = en_test[,1], Sale_Price = en_test.y.pred[,1])
+write.csv(en_test.y.pred, file = "mysubmission1.txt",  quote= FALSE, row.names = FALSE)
