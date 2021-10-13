@@ -15,6 +15,7 @@ library(glmnet)
 library(caret)
 library(gbm)
 
+start_time <- Sys.time()
 for(j in 1:10){
   
   train <- data[-testIDs[,j], ]
@@ -152,6 +153,8 @@ en_test.y.pred = data.frame(PID = en_test[,1], Sale_Price = en_test.y.pred[,1])
 write.csv(en_test.y.pred, file = paste("mysubmission_en_",j,".txt", sep=""),  quote= FALSE, row.names = FALSE)
 
 }
+end_time <- Sys.time()
+end_time - start_time
 ```
 
 ```{r}

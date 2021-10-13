@@ -1,0 +1,51 @@
+---
+title: "Project 1: Predict the Housing Prices in Ames"
+date: "Spring 2021"
+output:
+  html_document:
+    theme: readable
+    toc: TRUE
+    toc_float: TRUE
+---
+
+# Team Members and Contributions (all MCS)
+Steve Su (steven36)
+
+
+Pierson Wodarz (wodarz2)
+
+
+Steve and Pierson both built several models which met the performance criteria, and chose two models out of these options. Both reviewed the work of each other for understanding, corrections, and potential improvements. Feedback was provided to each other over calls, while updates to the parts were made by the respective team members. 
+
+# Data
+
+# Data Preprocessing 
+## GBM
+## Elastic Net
+
+# Model Technical Details
+
+# Results
+## Accuracy 
+| Test Split | GBM Test Error | ElasticNet Test Error |
+|------------|----------------|-----------------------|
+| 1          | 0.1163156      | 0.1226382             |
+| 2          | 0.1160827      | 0.1179175             |
+| 3          | 0.1088356      | 0.120597              |
+| 4          | 0.1132515      | 0.1198059             |
+| 5          | 0.1083723      | 0.1114046             |
+| 6          | 0.1230553      | 0.1336597             |
+| 7          | 0.1266367      | 0.1270781             |
+| 8          | 0.1168903      | 0.1208161             |
+| 9          | 0.1261995      | 0.1299768             |
+| 10         | 0.1193281      | 0.123419              |
+
+## Running time
+Running time = 3.348801 minutes
+
+System specs: 
+
+  * Processor:	Intel(R) Core(TM) i5-1035G1 CPU @ 1.00GHz, 1190 Mhz, 4 Core(s), 8 Logical Processor(s)
+  * RAM: 8.00 GB
+
+# Findings
