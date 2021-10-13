@@ -19,7 +19,7 @@ quan.value = 0.95
 # Step 1: Preprocess training data
 #         and fit two models
 #
-train <- read.csv("train.csv")
+train <- read.csv("train.csv", stringsAsFactors = FALSE)
 #
 # YOUR CODE
 # 
@@ -75,7 +75,7 @@ best.lam = cv.out$lambda.min
 # Step 2: Preprocess test data
 #         and output predictions into two files
 #
-test <- read.csv("test.csv")
+test <- read.csv("test.csv", stringsAsFactors = FALSE)
 #
 # YOUR CODE
 # 
