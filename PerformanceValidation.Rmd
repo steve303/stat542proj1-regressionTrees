@@ -15,8 +15,8 @@ library(glmnet)
 library(caret)
 library(gbm)
 
-data <- read.csv("Ames_data.csv")
-testIDs <- read.table("project1_testIDs.dat")
+data <- read.csv("Ames_data.csv", stringsAsFactors = FALSE)
+testIDs <- read.table("project1_testIDs.dat", stringsAsFactors = FALSE)
 
 start_time <- Sys.time()
 for(j in 1:10){
@@ -28,8 +28,8 @@ for(j in 1:10){
   write.csv(train,"train.csv",row.names=FALSE)
   write.csv(test, "test.csv",row.names=FALSE)
   write.csv(test.y,"test_y.csv",row.names=FALSE)
-  train <- read.csv("train.csv")
-  test <- read.csv("test.csv")
+  train <- read.csv("train.csv", stringsAsFactors = FALSE)
+  test <- read.csv("test.csv", stringsAsFactors = FALSE)
   
   set.seed(1093)
 
@@ -44,7 +44,7 @@ quan.value = 0.95
 # Step 1: Preprocess training data
 #         and fit two models
 #
-train <- read.csv("train.csv")
+train <- read.csv("train.csv", stringsAsFactors = FALSE)
 #
 # YOUR CODE
 # 
@@ -100,7 +100,7 @@ best.lam = cv.out$lambda.min
 # Step 2: Preprocess test data
 #         and output predictions into two files
 #
-test <- read.csv("test.csv")
+test <- read.csv("test.csv", stringsAsFactors = FALSE)
 #
 # YOUR CODE
 # 
