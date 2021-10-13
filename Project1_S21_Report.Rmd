@@ -22,10 +22,17 @@ Steve and Pierson both built several models which met the performance criteria, 
 # Data Preprocessing 
 ## GBM
 ## Elastic Net
+Train data preprocessing:
+Unlike the GBM model which uses factor variables, glmnet() requires input data to be in a matrix consisting of numerical data.  Therefore factor variables where converted to k-1 dummy variables where k corresponds to the levels of the categorical variable.  Secondly, NaNs were replaced with zeros.  NaNs were only found in the predictor, "yr_garage_built", which corresonded to observations with no garage.  Thirdly, some predictors were removed becaused they were not beneficial to the model.  For example, "longitude" and "lattitude" by themselves don't have much meaning.  It only makes sense when these two variables are used together to point to a location.  Lastly, numerical data was winsorized to give less influence to extremely high values, above the 95th quartile.  
+
+Test data preprocessing:
+To perform prediction of our statistical model requires that the train and test data have the same predictors.  In our case, the test data may not have the same predictors after assigining dummy variables to a categorical/ordinal variable.  This is because the the test data may not include all the levels seen the train data or vise versa.  To fix this we created a new column in our test matrix where a predictor was present in the train matrix but not in the test matrix.  This column was then filled with zeros.  In converse, when a predictor was present in the test matrix but not in the train matrix we just deleted this column from the test matrix. As with training data, we filled all NAs in "yr_garage_built" with zeros.  We only found NAs to be in this predictor variable.  Lastly, we also applied winsoring of numerical data and removed extraneous predictors as in the case with the training data.  
+
 
 # Model Technical Details
 
 # Results
+
 ## Accuracy 
 | Test Split | GBM Test Error | ElasticNet Test Error |
 |------------|----------------|-----------------------|
@@ -49,3 +56,10 @@ System specs:
   * RAM: 8.00 GB
 
 # Findings
+Before finding a sucessful regression model using elasticnet, we ran both ridge and lasso penalty regression models.  The ridge and lasso performed similarly and was just shy of hitting the performance benchmarks.  In both models, the minimum lambda was a better choice than the one standard error lambda value.  On average (10 splits) the minimum lambda showed between 5-7% improvement in RMSE value compared to the one standard error lambda for both the lasso and ridge models.  With this information we also used the minimum lambda in our elasticnet model.  Before giving up on the lasso model we also refit the model using lm() function with the non-zero beta coefficients of the one standard error lambda model.  We saw an average improvement (10 splits) of 6% in RMSE reduction.  In the minimun lambda lasso model we did not see any improvement with refit but rather a slight degredation in performance.  In our final model, we used the elasticnet penalty in order to meet the performance benchmarks.  An alpha level of 0.2 was used.  An alpha level closer to zero behaves more closely to a ridge penalty.    
+
+
+
+
+
+
