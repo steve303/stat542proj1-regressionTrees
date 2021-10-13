@@ -15,6 +15,9 @@ library(glmnet)
 library(caret)
 library(gbm)
 
+data <- read.csv("Ames_data.csv")
+testIDs <- read.table("project1_testIDs.dat")
+
 start_time <- Sys.time()
 for(j in 1:10){
   
