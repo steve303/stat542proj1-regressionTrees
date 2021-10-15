@@ -53,12 +53,19 @@ We performed the same preprocessing for our test data as we did for our training
 # Model Technical Details
 ## GBM
 Model description: We used the `gbm` package in r to fit a gradient boosting model. This model uses a group of decision trees, each of which is a weak or shallow decision tree model. By improving the decision trees successively, the final model has powerful predictive performance.
+
 Tuning parameters: The tuning parameters were set statically for all train and test splits/subsets and do not change between the splits/subsets. Instead, the parameters were tuned on the overall dataset, and reusing the same tuning parameters produced good performance on any observed split/subset of the data. We tuned the parameters manually, using the tuning parameters from https://uc-r.github.io/gbm_regression as a starting point. 
+
 distribution = gaussian: A gaussian distribution is used for regression as is the case here. 
-n.trees = 500: 500 trees produced the best performance across the various train/test splits. 
-shrinkage = 0.1: A shrinkage of .1 
+
+n.trees = 500: 500 trees produced the best performance across the various train/test splits when manually tuning parameters using steps of ~50 trees. 
+
+shrinkage = 0.1: A shrinkage of .1 produced optimal results. 
+
 interaction.depth = 5: Above 5 or below 5 reduced the overall performance. This is because below 5 was too shallow but above 5 was too deep. 
+
 bag.fraction = 1: We train on the entirety of the training set to produce the best performance. 
+
 cv.folds = 5: 5 fold cross validation was a good balance between training time and performance, with performance not significantly improving with additional cross validation (e.g. 10 fold).
 
 ## ElasticNet
