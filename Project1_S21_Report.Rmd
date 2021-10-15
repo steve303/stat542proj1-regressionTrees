@@ -29,10 +29,12 @@ Using the datapoints available for each house, we look to build two models to ac
 
 # Data Preprocessing 
 ## GBM
-Train data preprocessing: 
+**Train data preprocessing:**
+
 Data preprocessing was negligible for the boosting tree model. The only preprocessing for training was to transform character fields to factor.
 
-Test data preprocessing: 
+**Test data preprocessing: **
+
 For the test data for the boosting tree model, we only needed to ensure that the character fields were transformed to factors with the same levels/values as those in the train dataset. Therefore, the character fields were transformed to factors using the levels from the train dataset.
 
 ## ElasticNet
