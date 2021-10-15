@@ -71,12 +71,16 @@ bag.fraction = 1: We train on the entirety of the training set to produce the be
 cv.folds = 5: 5 fold cross validation was a good balance between training time and performance, with performance not significantly improving with additional cross validation (e.g. 10 fold).
 
 ## ElasticNet
-**Model description:**
-
-**Tuning parameters:**
+**Model description:**  
+To perform the elasticnet model we used R's glmnet library.  The `cv.glmnet()` class provides a minimum lambda value which we used as a hyperparameter for our prediction.  This minimum lambda value is determined through cross validation of the training data which is automatically performed by R.
+.     
+**Tuning parameters:**  
+Depending on the split, the minimun lambda parameter was found to be between 0.010 and 0.014.
+The other hyperparameter required for our model was alpha.  When alpha is zero it performs a ridge penalty.  When alpha is one it performs a lasso penalty.  We found that an alpha of 0.2 was enough to achieve the required performance.  
 
 
 # Results
+In general, for each split the GBM model has a lower RMSE than the elasticnet model.  The underlying data may not be best described as a linear regression model since the GBM model seems to be doing a better job.  
 
 ## Accuracy 
 | Test Split | GBM RMSE Test Error | ElasticNet RMSE Test Error |
@@ -101,7 +105,7 @@ System specs:
   * RAM: 8.00 GB
 
 # Findings
-Before finding a successful regression model using elasticnet, we ran both ridge and lasso penalty regression models.  The ridge and lasso performed similarly and was just shy of hitting the performance benchmarks.  In both models, the minimum lambda was a better choice than the one standard error lambda value.  On average (10 splits) the minimum lambda showed between 5-7% improvement in RMSE value compared to the one standard error lambda for both the lasso and ridge models.  With this information we also used the minimum lambda in our elasticnet model.  Before giving up on the lasso model we also refit the model using lm() function with the non-zero beta coefficients of the one standard error lambda model.  We saw an average improvement (10 splits) of 6% in RMSE reduction.  In the minimun lambda lasso model we did not see any improvement with refit but rather a slight degredation in performance.  In our final model, we used the elasticnet penalty in order to meet the performance benchmarks.  An alpha level of 0.2 was used.  An alpha level closer to zero behaves more closely to a ridge penalty.    
+*  Before finding a successful regression model using elasticnet, we ran both ridge and lasso penalty regression models.  The ridge and lasso performed similarly and was just shy of hitting the performance benchmarks.  In both models, the minimum lambda was a better choice than the one standard error lambda value.  On average (10 splits) the minimum lambda showed between 5-7% improvement in RMSE value compared to the one standard error lambda for both the lasso and ridge models.  With this information we also used the minimum lambda in our elasticnet model.  Before giving up on the lasso model we also refit the model using lm() function with the non-zero beta coefficients of the one standard error lambda model.  We saw an average improvement (10 splits) of 6% in RMSE reduction.  In the minimun lambda lasso model we did not see any improvement with refit but rather a slight degredation in performance.  In our final model, we used the elasticnet penalty in order to meet the performance benchmarks.  An alpha level of 0.2 was used.  An alpha level closer to zero behaves more closely to a ridge penalty.    
 
 * GBM required significantly less preprocessing, but was more sensitive to tuning parameters
 
