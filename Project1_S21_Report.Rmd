@@ -52,9 +52,9 @@ We performed the same preprocessing for our test data as we did for our training
 
 # Model Technical Details
 ## GBM
-Model description: We used the `gbm` package in r to fit a gradient boosting model. This model uses a group of decision trees, each of which is a weak or shallow decision tree model. By improving the decision trees successively, the final model has powerful predictive performance.
+**Model description:** We used the `gbm` package in r to fit a gradient boosting model. This model uses a group of decision trees, each of which is a weak or shallow decision tree model. By improving the decision trees successively, the final model has powerful predictive performance.
 
-Tuning parameters: The tuning parameters were set statically for all train and test splits/subsets and do not change between the splits/subsets. Instead, the parameters were tuned on the overall dataset, and reusing the same tuning parameters produced good performance on any observed split/subset of the data. We tuned the parameters manually, using the tuning parameters from https://uc-r.github.io/gbm_regression as a starting point. 
+**Tuning parameters:** The tuning parameters were set statically for all train and test splits/subsets and do not change between the splits/subsets. Instead, the parameters were tuned on the overall dataset, and reusing the same tuning parameters produced good performance on any observed split/subset of the data. We tuned the parameters manually, using the tuning parameters from https://uc-r.github.io/gbm_regression as a starting point. 
 
 distribution = gaussian: A gaussian distribution is used for regression as is the case here. 
 
@@ -69,25 +69,26 @@ bag.fraction = 1: We train on the entirety of the training set to produce the be
 cv.folds = 5: 5 fold cross validation was a good balance between training time and performance, with performance not significantly improving with additional cross validation (e.g. 10 fold).
 
 ## ElasticNet
-Model description:
-Tuning parameters: 
+**Model description:**
+
+**Tuning parameters:**
 
 
 # Results
 
 ## Accuracy 
-| Test Split | GBM Test Error | ElasticNet Test Error |
-|------------|----------------|-----------------------|
-| 1          | 0.1163156      | 0.1226382             |
-| 2          | 0.1160827      | 0.1179175             |
-| 3          | 0.1088356      | 0.120597              |
-| 4          | 0.1132515      | 0.1198059             |
-| 5          | 0.1083723      | 0.1114046             |
-| 6          | 0.1230553      | 0.1336597             |
-| 7          | 0.1266367      | 0.1270781             |
-| 8          | 0.1168903      | 0.1208161             |
-| 9          | 0.1261995      | 0.1299768             |
-| 10         | 0.1193281      | 0.123419              |
+| Test Split | GBM RMSE Test Error | ElasticNet RMSE Test Error |
+|------------|---------------------|----------------------------|
+| 1          | 0.1163156           | 0.1226382                  |
+| 2          | 0.1160827           | 0.1179175                  |
+| 3          | 0.1088356           | 0.120597                   |
+| 4          | 0.1132515           | 0.1198059                  |
+| 5          | 0.1083723           | 0.1114046                  |
+| 6          | 0.1230553           | 0.1336597                  |
+| 7          | 0.1266367           | 0.1270781                  |
+| 8          | 0.1168903           | 0.1208161                  |
+| 9          | 0.1261995           | 0.1299768                  |
+| 10         | 0.1193281           | 0.123419                   |
 
 ## Running time
 Running time = 3.348801 minutes
