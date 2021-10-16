@@ -34,7 +34,8 @@ gbm_fit = gbm(log(Sale_Price) ~ ., data = gbm_train[,-which(names(gbm_train) == 
              shrinkage = 0.1,
              interaction.depth = 5,
              bag.fraction = 1,
-             cv.folds = 5)
+             cv.folds = 5,
+             verbose = FALSE)
 
 # Elastic Net
 # Remove Vars
