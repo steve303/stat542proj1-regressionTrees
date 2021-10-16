@@ -1605,11 +1605,11 @@ div.tocify {
 <h2>GBM</h2>
 <p><strong>Model description:</strong> We used the <code>gbm</code> package in r to fit a gradient boosting model. This model uses a group of decision trees, each of which is a weak or shallow decision tree model. By improving the decision trees successively, the final model has powerful predictive performance.</p>
 <p><strong>Tuning parameters:</strong> The tuning parameters were set statically for all train and test splits/subsets and do not change between the splits/subsets. Instead, the parameters were tuned on the overall dataset, and reusing the same tuning parameters produced good performance on any observed split/subset of the data. We tuned the parameters manually, using the tuning parameters from <a href="https://uc-r.github.io/gbm_regression" class="uri">https://uc-r.github.io/gbm_regression</a> as a starting point.</p>
-<p>distribution = gaussian: A gaussian distribution is used for regression as is the case here.</p>
-<p>n.trees = 500: 500 trees produced the best performance across the various train/test splits when manually tuning parameters using steps of ~50 trees.</p>
-<p>shrinkage = 0.1: A shrinkage of .1 produced optimal results.</p>
-<p>interaction.depth = 5: Above 5 or below 5 reduced the overall performance. This is because below 5 was too shallow but above 5 was too deep.</p>
-<p>bag.fraction = 1: We train on the entirety of the training set to produce the best performance.</p>
+<p>distribution = gaussian: A gaussian distribution is used for regression as is the case here. This uses the squared error.</p>
+<p>n.trees = 500: This parameter specifies the number of trees to fit. 500 trees produced the best performance across the various train/test splits when manually tuning parameters using steps of ~50 trees.</p>
+<p>shrinkage = 0.1: This parameter controls the learning rate. A shrinkage of .1 produced optimal results.</p>
+<p>interaction.depth = 5: This parameter specifies the maximum depth of each tree and controls the number of interactions between parameters. Above 5 or below 5 reduced the overall performance. This is because below 5 was too shallow but above 5 was too deep.</p>
+<p>bag.fraction = 1: This parameter controls the fraction of the training set observations selected for the next tree. In this case, we found that using the entirety of the training set for the next tree produced positive results.</p>
 <p>cv.folds = 5: 5 fold cross validation was a good balance between training time and performance, with performance not significantly improving with additional cross validation (e.g. 10 fold).</p>
 </div>
 <div id="elasticnet-1" class="section level2">
@@ -1701,9 +1701,10 @@ Depending on the split, the minimum lambda parameter was found to be between 0.0
 <h1>Findings</h1>
 <ul>
 <li><p>Before finding a successful regression model using elasticnet, we ran both ridge and lasso penalty regression models. The ridge and lasso performed similarly and was just shy of hitting the performance benchmarks. In both models, the minimum lambda was a better choice than the one standard error lambda value. On average (10 splits) the minimum lambda showed between 5-7% improvement in RMSE value compared to the one standard error lambda for both the lasso and ridge models. With this information we also used the minimum lambda in our elasticnet model. Before giving up on the lasso model we also refit the model using lm() function with the non-zero beta coefficients of the one standard error lambda model. We saw an average improvement (10 splits) of 6% in RMSE reduction. In the minimun lambda lasso model we did not see any improvement with refit but rather a slight degredation in performance. In our final model, we used the elasticnet penalty in order to meet the performance benchmarks. An alpha level of 0.2 was used. An alpha level closer to zero behaves more closely to a ridge penalty.</p></li>
-<li><p>GBM required significantly less preprocessing, but was more sensitive to tuning parameters.</p></li>
+<li><p>GBM required significantly less preprocessing, but was more sensitive to tuning parameters. For example, ElasticNet acheived the performance requirements with an alpha = 0.2 or alpha = 0.5. However, doubling a parameter for GBM, such as n.trees, resulted in signficantly worse performance.</p></li>
 <li><p>There may be the potential to improve ElasticNet performance by the inclusion of non-linear relationships or interactions between factors. However, the <code>glmnet</code> package does not have a trivial way to include non-linear terms or interactions between terms.</p></li>
 <li><p>Winsorization had one of the largest performance gains for all preprocessing steps for the ElasticNet model. This validates the initial assumption that certain numerical values do not maintain a linear relationship in the extreme cases.</p></li>
+<li><p>A more automated method of tuning parameters, specifically for GBM, could be explored to further increase performance.</p></li>
 </ul>
 </div>
 <div id="resources" class="section level1">
