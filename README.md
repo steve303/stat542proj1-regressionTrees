@@ -6,6 +6,10 @@ Evaluate and select two machine learning models which can best predict the sales
 1. Decision tree - Gradient boosting model (GBM),  
 2. Regression model with ElasticNet penalty.  
 
-See [link](https://steve303.github.io/stat542proj1-regressionTrees/Project1_S21_Report.nb.html) for report.
+See [link](https://steve303.github.io/stat542proj1-regressionTrees/Project1_S21_Report.nb.html) for report.  
+
+## Code File Descriptions  
+`PerformanceValidation.Rmd` - contains details of each model and outputs the rmse values documented in report  
+`mymain.R` - outputs predictions for the purposes of reporting scores in competition
 
 
