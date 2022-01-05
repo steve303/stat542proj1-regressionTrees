@@ -1,34 +1,51 @@
 ---
-title: "Project 1: Predict the Housing Prices in Ames"
-date: "Spring 2021"
+title: "Predict the Housing Prices in Ames, Iowa - Decision Tree (GBM) vs Regression Model (Elastic Net)"
+date: "Fall 2021"
 output:
-  html_document:
+  html_notebook:
     theme: readable
     toc: TRUE
     toc_float: TRUE
 ---
 
-# Team Members and Contributions (all MCS)
-Steve Su (steven36)
+Steve Su, Pierson Wodarz   
+University of Illinois - Urbana, Champaign; MCS   
+
+# Objective
+Evaluate and select two models which can best predict the sales price of a given house from the data set. The two models should meet RMSE scores of 0.125 for the first 5 training/test splits and
+0.135 for the remaining 5 training/test splits.  Use the R programming language to perform this study.  The two chosen models were:  
+
+1. Decision tree - Gradient boosting model (GBM),  
+2. Regression model with ElasticNet penalty.  
 
 
-Pierson Wodarz (wodarz2)
+# Data  
+The dataset has 2930 rows (i.e., houses) and 83 columns, named `Ames_data.csv` originally prepared by [De Cock 2011](http://jse.amstat.org/v19n3/decock.pdf).  
 
+- The first column is “PID”, the Parcel identification number;
+- The last column is the response variable, Sale_Price;
+- The remaining 81 columns are explanatory variables describing (almost) every aspect of residential homes.  
 
-Steve and Pierson both built several models which met the performance criteria, and chose two models out of these options. Both reviewed the work of each other for understanding, corrections, and potential improvements. Feedback was provided to each other over calls, while updates to the parts were made by the respective team members. The report work was broken out by model, with each taking a model to add details. 
+## Test IDs
+Use `project1_testIDs.dat` to generate 10 sets of training/test splits from Ames_data.csv. Each column contains the 879 row-numbers of a test data.  Use the R code below as a guide to perform the splits.
 
-# Introduction
-## Data
-The dataset contains data on 2,930 houses in Ames, Iowa compiled by Dean De Cock. There are 83 datapoints for each house, including the sale price of the house and other information about the house such as its square footage and geolocation. 
+```{r,eval=FALSE}
+data <- read.csv("Ames_data.csv")
+testIDs <- read.table("project1_testIDs.dat")
+j <- 2
+train <- data[-testIDs[,j], ]
+test <- data[testIDs[,j], ]
+test.y <- test[, c(1, 83)]
+test <- test[, -83]
+write.csv(train,"train.csv",row.names=FALSE)
+write.csv(test, "test.csv",row.names=FALSE)
+write.csv(test.y,"test_y.csv",row.names=FALSE)
 
-## Goal
-Using the datapoints available for each house, we look to build two models to accurately predict the sale price of a given house. We built the following models which generate our predictions:
+```
 
-1. Gradient boosting decision tree model (GBM)
-2. A linear regression model with an ElasticNet penalty (ElasticNet)
 
 # Data Preprocessing 
-## GBM
+## Decision Tree - Gradient Boosting Model (GBM)
 **Train data preprocessing:**
 
 Data preprocessing was negligible for the boosting tree model. The only preprocessing for training was to transform character fields to factor.
@@ -37,14 +54,14 @@ Data preprocessing was negligible for the boosting tree model. The only preproce
 
 For the test data for the boosting tree model, we only needed to ensure that the character fields were transformed to factors with the same levels/values as those in the train dataset. Therefore, the character fields were transformed to factors using the levels from the train dataset.
 
-## ElasticNet
+## Regression Model with ElasticNet Penalty
 **Train data preprocessing:**
 
 Remove variables: Some predictors were removed because they were not beneficial to the model. There are several reasons this could be the case, such as variables with a high frequency in only one category, or variables which don't have a clear relationship to price at all. For example, the character variable of street would result in many distinct categories, and a disparity in streets between train and test would result in many NAs when factorizing, making the variable meaningless. Additionally, this information may be captured by other neighborhood categories. 
 
 One Hot Encoding: For better results, we perform one-hot encoding using dummy variables trained on the character/categorical fields in the test data. Factor/character variables where converted to k-1 dummy variables where k corresponds to the levels of the categorical variable. Those dummy variables are then used to create additional one hot encoding columns, with the values representing whether a particular property had the categorical value for that category. We then removed the factorized categorical columns as the data is contained within the one hot encoding columns. 
 
-Replace NA: We found that NANs existed within the "yr_garage_built" variable. We replaced NANs with 0, as our model cannot process NAN and replacing NAN with 0 allows the model to process these properties without significantly negatively impacting performance. 
+Replace NA: We found that NANs existed within the "yr_garage_built" variable. We replaced NANs with 0, as our regression model cannot process NAN and replacing NAN with 0 allows the model to process these properties without significantly negatively impacting performance. 
 
 Winsorization: Certain numerical values usually only have a linear influence on price within a specific range, above which the value of the house is not as significantly impacted by a corresponding increase in the value of the predictor. As a result, we windsorize the data to the 95th percentile for several of these numerical fields. 
 
@@ -53,8 +70,8 @@ Winsorization: Certain numerical values usually only have a linear influence on 
 We performed the same preprocessing for our test data as we did for our training data: removing variables, one hot encoding, replacing NA values, and winsorization. The only difference was in the preprocessing of the character/categorical values. Similar to the test data preprocessing for GBM, we needed to ensure that the character fields were transformed into one hot encodings with encodings equivalent to those from the train data set. In this case, we encode into dummy variables using the predict function where the model is created by the `dummyVars` function from the `caret` package and the data for this model is the train data. This ensures that the results are encodings from the train dataset or NA (for values in the test dataset which weren't present in the train dataset). For the NA values, they were simply set to 0. This is appropriate for one-hot encoding as a value that is outside the existing range will be encoded into 0 within the range.  
 
 # Model Technical Details
-## GBM
-**Model description:** We used the `gbm` package in r to fit a gradient boosting model. This model uses a group of decision trees, each of which is a weak or shallow decision tree model. By improving the decision trees successively, the final model has powerful predictive performance.
+## Decision Tree - GBM
+**Model description:** We used the `gbm` package in r to fit a gradient boosting model. This model uses a group of decision trees, each of which is a weak or shallow decision tree model. By improving the decision trees successively, the final model has powerful predictive performance.  Code details can be found in the `PerformanceValidation.Rmd` file or view [here](https://steve303.github.io/stat542proj1/PerformanceValidation.nb.html) for html version.
 
 **Tuning parameters:** The tuning parameters were set statically for all train and test splits/subsets and do not change between the splits/subsets. Instead, the parameters were tuned on the overall dataset, and reusing the same tuning parameters produced good performance on any observed split/subset of the data. We tuned the parameters manually, using the tuning parameters from https://uc-r.github.io/gbm_regression as a starting point. 
 
@@ -70,17 +87,17 @@ bag.fraction = 1: This parameter controls the fraction of the training set obser
 
 cv.folds = 5: 5 fold cross validation was a good balance between training time and performance, with performance not significantly improving with additional cross validation (e.g. 10 fold).
 
-## ElasticNet
+## Regression Model - ElasticNet
 **Model description:**  
-To perform the elasticnet model we used R's glmnet library.  The `cv.glmnet()` class provides a minimum lambda value which we used as a hyperparameter for our prediction.  This minimum lambda value is determined through cross validation of the training data which is automatically performed by R.
-.     
+To perform the elasticnet model we used R's glmnet library.  The `cv.glmnet()` class provides a minimum lambda value which we used as a hyperparameter for our prediction.  This minimum lambda value is determined through cross validation of the training data which is automatically performed by R.  Note, interactions and polynomial terms were not introduced into this model which could be helpful.  Code details can be found in the `PerformanceValidation.Rmd` file or view [here](https://steve303.github.io/stat542proj1/PerformanceValidation.nb.html) for html version.  
+
 **Tuning parameters:**  
 Depending on the split, the minimum lambda parameter was found to be between 0.010 and 0.014.
 The other hyperparameter required for our model was alpha.  When alpha is zero it performs a ridge penalty.  When alpha is one it performs a lasso penalty.  We found that an alpha of 0.2 was enough to achieve the required performance.  
 
 
 # Results
-In general, for each split the GBM model has a lower RMSE than the ElasticNet model.  The underlying data may not be best described as a linear regression model since the GBM model seems to be doing a better job.  We were able to achieve the set performance goals for each model.
+In general, for each split the GBM model has a lower RMSE than the ElasticNet model.  The underlying data may not be best described as linear since the GBM model seems to be doing a better job.  We were able to achieve the set performance goals for each model.
 
 ## Performance (log scale)
 
@@ -105,7 +122,7 @@ System specs:
   * Processor:	Intel(R) Core(TM) i5-1035G1 CPU @ 1.00GHz, 1190 Mhz, 4 Core(s), 8 Logical Processor(s)
   * RAM: 8.00 GB
 
-# Findings
+# Summary
 *  Before finding a successful regression model using elasticnet, we ran both ridge and lasso penalty regression models.  The ridge and lasso performed similarly and was just shy of hitting the performance benchmarks.  In both models, the minimum lambda was a better choice than the one standard error lambda value.  On average (10 splits) the minimum lambda showed between 5-7% improvement in RMSE value compared to the one standard error lambda for both the lasso and ridge models.  With this information we also used the minimum lambda in our elasticnet model.  Before giving up on the lasso model we also refit the model using lm() function with the non-zero beta coefficients of the one standard error lambda model.  We saw an average improvement (10 splits) of 6% in RMSE reduction.  In the minimun lambda lasso model we did not see any improvement with refit but rather a slight degredation in performance.  In our final model, we used the elasticnet penalty in order to meet the performance benchmarks.  An alpha level of 0.2 was used.  An alpha level closer to zero behaves more closely to a ridge penalty.    
 
 * GBM required significantly less preprocessing, but was more sensitive to tuning parameters. For example, ElasticNet acheived the performance requirements with an alpha = 0.2 or alpha = 0.5. However, doubling a parameter for GBM, such as n.trees, resulted in signficantly worse performance. 
