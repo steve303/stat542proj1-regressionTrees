@@ -1,5 +1,5 @@
 ---
-title: "Predict the Housing Prices in Ames, Iowa - Decision Tree (GBM) vs Regression Model (Elastic Net)"
+title: "Predict the Housing Prices in Ames, Iowa - Decision Tree (GBM) vs Linear Regression Model (Elastic Net)"
 date: "Fall 2021"
 output:
   html_notebook:
@@ -71,7 +71,7 @@ We performed the same preprocessing for our test data as we did for our training
 
 # Model Technical Details
 ## Decision Tree - GBM
-**Model description:** We used the `gbm` package in r to fit a gradient boosting model. This model uses a group of decision trees, each of which is a weak or shallow decision tree model. By improving the decision trees successively, the final model has powerful predictive performance.  Code details can be found in the `PerformanceValidation.Rmd` file or view [here](https://steve303.github.io/stat542proj1/PerformanceValidation.nb.html) for html version.
+**Model description:** We used the `gbm` package in r to fit a gradient boosting model. This model uses a group of decision trees, each of which is a weak or shallow decision tree model. By improving the decision trees successively, the final model has powerful predictive performance.  Code details can be found in the `PerformanceValidation.Rmd` file or view [here](https://steve303.github.io/stat542proj1-regressionTrees/PerformanceValidation.nb.html) for html version.
 
 **Tuning parameters:** The tuning parameters were set statically for all train and test splits/subsets and do not change between the splits/subsets. Instead, the parameters were tuned on the overall dataset, and reusing the same tuning parameters produced good performance on any observed split/subset of the data. We tuned the parameters manually, using the tuning parameters from https://uc-r.github.io/gbm_regression as a starting point. 
 
@@ -89,7 +89,7 @@ cv.folds = 5: 5 fold cross validation was a good balance between training time a
 
 ## Regression Model - ElasticNet
 **Model description:**  
-To perform the elasticnet model we used R's glmnet library.  The `cv.glmnet()` class provides a minimum lambda value which we used as a hyperparameter for our prediction.  This minimum lambda value is determined through cross validation of the training data which is automatically performed by R.  Note, interactions and polynomial terms were not introduced into this model which could be helpful.  Code details can be found in the `PerformanceValidation.Rmd` file or view [here](https://steve303.github.io/stat542proj1/PerformanceValidation.nb.html) for html version.  
+To perform the elasticnet model we used R's glmnet library.  The `cv.glmnet()` class provides a minimum lambda value which we used as a hyperparameter for our prediction.  This minimum lambda value is determined through cross validation of the training data which is automatically performed by R.  Note, interactions and polynomial terms were not introduced into this model which could be helpful.  Code details can be found in the `PerformanceValidation.Rmd` file or view [here](https://steve303.github.io/stat542proj1-regressionTrees/PerformanceValidation.nb.html) for html version.  
 
 **Tuning parameters:**  
 Depending on the split, the minimum lambda parameter was found to be between 0.010 and 0.014.
@@ -97,7 +97,7 @@ The other hyperparameter required for our model was alpha.  When alpha is zero i
 
 
 # Results
-In general, for each split the GBM model has a lower RMSE than the ElasticNet model.  The underlying data may not be best described as linear since the GBM model seems to be doing a better job.  We were able to achieve the set performance goals for each model.
+In general, for each split the GBM model has a lower RMSE than the ElasticNet model.  We were able to achieve the set performance goals for each model.
 
 ## Performance (log scale)
 
@@ -134,7 +134,10 @@ System specs:
 * A more automated method of tuning parameters, specifically for GBM, could be explored to further increase performance. 
 
 # Resources
-https://uc-r.github.io/gbm_regression
+https://uc-r.github.io/gbm_regression  
+https://gdcoder.com/when-why-to-use-log-transformation-in-regression/  
+[De Cock 2011](http://jse.amstat.org/v19n3/decock.pdf)  
+
 
 
 
